@@ -15,39 +15,38 @@ const app = getApp();
 
 /**
  * Resting places for the five dice, as percentages of the dice field:
- * three across the front, two behind.
+ * three across the front, two behind and between them.
  *
- * Solved numerically. The hard rule is that no die corner — at any jitter or
- * rotation — may fall outside the cup's silhouette, since the whole point is
- * that the hand stays hidden; this layout keeps 23rpx of slack. The back two
- * are allowed to rise about 49rpx past the mat's back edge, and the worst
- * pair overlaps by 19%.
+ * Checked against the sprites: with the cup down, every die stays inside its
+ * silhouette, and with the cup up its base clears the back row.
  */
 const SLOTS = [
-  { x: 15.7, y: 41.9 },
-  { x: 39.5, y: 41.9 },
-  { x: 63.3, y: 41.9 },
-  { x: 27.6, y: 4.8 },
-  { x: 51.4, y: 4.8 },
+  { x: 0, y: 45.5 },
+  { x: 36.3, y: 45.5 },
+  { x: 72.6, y: 45.5 },
+  { x: 18.1, y: 0 },
+  { x: 54.4, y: 0 },
 ];
 
 /** Scatter the dice a little so a re-roll does not look like a redraw. */
 function positioned(hand, rng) {
   return toDice(hand).map(function (die, i) {
     const slot = SLOTS[i];
-    // Jitter and rotation are kept small: the layout has only ~10rpx of
-    // clearance against the cup, so loose dice would poke out underneath.
+    // Kept small: the dice are 3D renders, so a large in-plane rotation would
+    // look wrong, and loose dice could poke out from under the cup.
     const jx = (rng() - 0.5) * 2.4;
     const jy = (rng() - 0.5) * 2.4;
-    const rot = (rng() - 0.5) * 24;
+    const rot = (rng() - 0.5) * 10;
     const top = slot.y + jy;
     // Depth order: the lower a die sits on screen the nearer it is, so it
-    // paints over the ones behind it. `top` runs 0-100, well under the cup's
+    // paints over the ones behind it. Jitter can take the back row's `top`
+    // to about -1.2, and a negative z-index sinks the die behind the tray, so
+    // it is offset to stay positive. Tops out near 102, well under the cup's
     // own z-index, which must stay above every die.
     die.pos =
       'left:' + (slot.x + jx).toFixed(1) + '%;' +
       'top:' + top.toFixed(1) + '%;' +
-      'z-index:' + Math.round(top) + ';' +
+      'z-index:' + (2 + Math.round(top)) + ';' +
       'transform:rotate(' + rot.toFixed(1) + 'deg);';
     return die;
   });

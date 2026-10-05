@@ -1,19 +1,20 @@
 page {
-  background: #0a1230;
+  background: #000000;
   height: 100%;
 }
 
-/* Shared dark stage with the faint starfield from the reference. */
+/* Black stage with the blue glow from the renders in visuals/. */
 .stage {
   position: relative;
   box-sizing: border-box;
   width: 100%;
   min-height: 100vh;
   background: radial-gradient(
-      ellipse at 50% 30%,
-      #1b2554 0%,
-      #131a3d 45%,
-      #0a1230 100%
+      ellipse at 50% 42%,
+      #0b2f9e 0%,
+      #071d6b 28%,
+      #030a2a 58%,
+      #000000 85%
     );
   overflow: hidden;
 }

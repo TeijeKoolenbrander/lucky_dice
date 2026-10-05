@@ -17,6 +17,10 @@
       },
       {
         "type": "folder",
+        "value": "visuals"
+      },
+      {
+        "type": "folder",
         "value": "tests"
       },
       {

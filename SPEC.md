@@ -225,18 +225,21 @@ cheat mode, where both gestures are live at once.
 
 ## 4. Visual design
 
-Rebuilt from `base_images/` with CSS and inline SVG rather than extracted sprites —
-the screenshots carry ad overlays and partial occlusion, so clean assets cannot be
-lifted from them anyway.
+Built from the renders in `visuals/` (not shipped). They are cropped,
+resized and compressed into `assets/images/` (~230KB in total):
 
-- **Background** — dark navy radial gradient (`#0a1230` → `#131a3d`), scattered small
-  white sparkle dots.
-- **Cup** — blue cylinder with a lighter elliptical rim and a soft highlight band.
-  Hidden state is the cup down over the mat; revealed is the cup translated up
-  ~260rpx.
-- **Mat** — blue ellipse the dice rest on.
-- **Dice** — white rounded squares. **Pips are blue, except the 1 and the 4, which are
-  red** (standard Chinese dice colouring, visible throughout the reference).
+| Sprite | From | Shown at |
+|---|---|---|
+| `cup.png` | `Cup (1).png` | 440×619rpx |
+| `tray.png` | `lid (1).png` | 600×406rpx |
+| `die1.png` … `die6.png` | `1 (1).png` … `6 (1).png` | 96×109rpx, rolled value on the top face |
+
+`Closed (1).png` and `open (1).png` are layout references only.
+
+- **Background**: black, with a blue radial glow behind the cup.
+- **Cup**: the base rests on the tray floor. When revealed, the cup is translated
+  up 260rpx, which clears the back row of dice.
+- **Dice**: 3D renders, so in-plane rotation is kept within ±5°.
 - **Shake animation** — cup lowers, then rotates ±8° for ~1.2s with easing, settling
   back to 0°.
 - **Bottom bar** — three controls: circular mute toggle (left), large red circular 摇

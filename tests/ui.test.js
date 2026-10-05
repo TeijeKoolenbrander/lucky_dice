@@ -1,29 +1,25 @@
 const test = require('node:test');
 const assert = require('node:assert');
 
-const { toDice, PIPS } = require('../utils/ui');
+const fs = require('node:fs');
+const path = require('node:path');
+
+const { toDice, dieSrc } = require('../utils/ui');
 const { zoneAt, zoneToQuantity, zoneToFace } = require('../core/cheat');
 
-test('every face draws as many pips as its value', () => {
-  for (let v = 1; v <= 6; v++) {
-    const drawn = PIPS[v].reduce((a, b) => a + b, 0);
-    assert.strictEqual(drawn, v, `face ${v} draws ${drawn} pips`);
-  }
-});
-
-test('pip layouts are symmetric', () => {
-  // Reading the 3x3 grid backwards must give the same layout.
-  for (let v = 1; v <= 6; v++) {
-    assert.deepStrictEqual(PIPS[v], [...PIPS[v]].reverse(), `face ${v}`);
-  }
-});
-
-test('1 and 4 render red, everything else blue', () => {
-  const dice = toDice([1, 2, 3, 4, 5]);
+test('every face maps to its own sprite', () => {
+  const dice = toDice([1, 2, 3, 4, 5, 6]);
   assert.deepStrictEqual(
-    dice.map((d) => d.red),
-    [true, false, false, true, false]
+    dice.map((d) => d.src),
+    [1, 2, 3, 4, 5, 6].map((v) => `/assets/images/die${v}.png`)
   );
+});
+
+test('every die sprite exists on disk', () => {
+  for (let v = 1; v <= 6; v++) {
+    const file = path.join(__dirname, '..', dieSrc(v));
+    assert.ok(fs.existsSync(file), file);
+  }
 });
 
 test('toDice keeps the hand order and values', () => {

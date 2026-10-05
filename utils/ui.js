@@ -21,17 +21,12 @@ function sparkles(n) {
 }
 
 /**
- * Pip layout per face, as a 3x3 grid read left-to-right, top-to-bottom.
- * 1 and 4 are red; the rest blue — standard Chinese dice colouring.
+ * One sprite per face, cut from the renders in visuals/. Each shows the
+ * rolled value on its top face; 1 and 4 have red pips, as on Chinese dice.
  */
-const PIPS = {
-  1: [0, 0, 0, 0, 1, 0, 0, 0, 0],
-  2: [1, 0, 0, 0, 0, 0, 0, 0, 1],
-  3: [1, 0, 0, 0, 1, 0, 0, 0, 1],
-  4: [1, 0, 1, 0, 0, 0, 1, 0, 1],
-  5: [1, 0, 1, 0, 1, 0, 1, 0, 1],
-  6: [1, 0, 1, 1, 0, 1, 1, 0, 1],
-};
+function dieSrc(value) {
+  return '/assets/images/die' + value + '.png';
+}
 
 /** Turn a hand into something WXML can render directly. */
 function toDice(hand) {
@@ -39,10 +34,9 @@ function toDice(hand) {
     return {
       id: i,
       value: value,
-      cells: PIPS[value],
-      red: value === 1 || value === 4,
+      src: dieSrc(value),
     };
   });
 }
 
-module.exports = { sparkles, toDice, PIPS };
+module.exports = { sparkles, toDice, dieSrc };

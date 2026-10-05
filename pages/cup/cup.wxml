@@ -11,32 +11,21 @@
   ></view>
 
   <view class="table">
-    <view class="mat"></view>
+    <image class="mat" src="/assets/images/tray.png" mode="aspectFit"></image>
 
     <view class="dice-field">
-      <view
+      <image
         class="die"
         wx:for="{{dice}}"
         wx:key="id"
         style="{{item.pos}}"
-      >
-        <view class="pip-grid">
-          <view
-            class="pip-cell"
-            wx:for="{{item.cells}}"
-            wx:for-item="on"
-            wx:for-index="ci"
-            wx:key="ci"
-          >
-            <view class="pip {{item.red ? 'pip-red' : ''}}" wx:if="{{on}}"></view>
-          </view>
-        </view>
-      </view>
+        src="{{item.src}}"
+        mode="aspectFit"
+      ></image>
     </view>
 
     <view class="cup {{revealed ? 'cup-up' : ''}} {{shaking ? 'cup-wobble' : ''}}">
-      <view class="cup-body"></view>
-      <view class="cup-inner"></view>
+      <image class="cup-img" src="/assets/images/cup.png" mode="aspectFit"></image>
     </view>
   </view>
 
