@@ -1,0 +1,196 @@
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- the table: mat, dice, and the cup that covers them ---- */
+
+.table {
+  position: relative;
+  width: 100%;
+  height: 820rpx;
+  margin-top: 90rpx;
+}
+
+/*
+ * The platform the dice sit on. Wider than the 460rpx cup so a ring of it
+ * stays visible around the cup while it is down.
+ *
+ * Raised 37rpx in total (a twentieth of its height, then three thirtieths)
+ * above the alignment where its midpoint sat on the cup's bottom edge of
+ * 48rpx. The midpoint is now 85rpx.
+ */
+.mat {
+  position: absolute;
+  left: 50%;
+  bottom: -40rpx;
+  width: 580rpx;
+  height: 250rpx;
+  margin-left: -290rpx;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 35%, #2f7fd6 0%, #1c5aa8 60%, #11427e 100%);
+  box-shadow: 0 10rpx 30rpx rgba(0, 0, 0, 0.45);
+}
+
+/*
+ * Kept narrower than the cup so every die — including its rotated corners —
+ * sits fully inside the footprint when the cup is down.
+ */
+.dice-field {
+  position: absolute;
+  left: 50%;
+  bottom: 40rpx;
+  width: 420rpx;
+  height: 210rpx;
+  margin-left: -210rpx;
+}
+
+.die {
+  position: absolute;
+  box-sizing: border-box;
+  width: 88rpx;
+  height: 88rpx;
+  padding: 9rpx;
+  border-radius: 19rpx;
+  background: linear-gradient(145deg, #ffffff 0%, #f1f3f7 55%, #d9dde6 100%);
+  box-shadow: 0 6rpx 10rpx rgba(0, 0, 0, 0.4), inset 0 -4rpx 6rpx rgba(0, 0, 0, 0.12);
+}
+
+.pip-grid {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  height: 100%;
+}
+
+.pip-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 33.333%;
+  height: 33.333%;
+}
+
+.pip {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #1b3ea8;
+}
+
+/* 1 and 4 are red on Chinese dice. */
+.pip-red {
+  background: #d4201a;
+}
+
+/* ---- the cup ---- */
+
+/*
+ * One diameter top to bottom — the body and the base ellipse are the same
+ * width, so the cup reads as a straight cylinder and fully covers the dice.
+ */
+/*
+ * A plain cylinder: the body is elliptical at both ends so there is no
+ * straight seam, with the interior showing through on its face.
+ */
+/*
+ * z-index 200 does two jobs: it keeps the cup above every die (the dice carry
+ * z-indexes of 0-100 to depth-sort themselves), and it makes `.cup` a stacking
+ * context so the layer numbers below are local to it.
+ */
+.cup {
+  position: absolute;
+  left: 50%;
+  bottom: 48rpx;
+  z-index: 200;
+  width: 460rpx;
+  height: 617rpx;
+  margin-left: -230rpx;
+  transform: translateY(0);
+  transform-origin: 50% 100%;
+  transition: transform 0.45s cubic-bezier(0.22, 0.9, 0.3, 1);
+}
+
+/* 235rpx clears the dice while keeping the raised cup on screen. */
+.cup-up {
+  transform: translateY(-235rpx);
+}
+
+/*
+ * Elliptical top and bottom. The top arc is deeper (60rpx) to carry the rim;
+ * the bottom is shallower (40rpx) so the cup stays wide enough down there to
+ * keep the dice covered.
+ */
+.cup-body {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  border-radius: 50% 50% 50% 50% / 60rpx 60rpx 40rpx 40rpx;
+  background: linear-gradient(
+    90deg,
+    #0e3f86 0%,
+    #1a62b8 18%,
+    #52a9f2 44%,
+    #2e86e2 62%,
+    #12498f 84%,
+    #0b3570 100%
+  );
+}
+
+/* The interior, showing through the opening. */
+.cup-inner {
+  position: absolute;
+  left: 50%;
+  top: 150rpx;
+  z-index: 3;
+  width: 290rpx;
+  height: 250rpx;
+  margin-left: -145rpx;
+  border-radius: 50% 50% 46% 46% / 55% 55% 45% 45%;
+  background: radial-gradient(ellipse at 45% 28%, #cdbda1 0%, #a89880 55%, #7d705d 100%);
+}
+
+/* ---- shake ---- */
+
+.cup-wobble {
+  animation: wobble 0.22s linear infinite;
+}
+
+@keyframes wobble {
+  0% {
+    transform: translateY(0) rotate(0deg);
+  }
+  25% {
+    transform: translateY(-14rpx) rotate(-7deg);
+  }
+  50% {
+    transform: translateY(0) rotate(0deg);
+  }
+  75% {
+    transform: translateY(-14rpx) rotate(7deg);
+  }
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+}
+
+/* ---- hint ---- */
+
+/* Positioned so the mat, which now hangs below the table, cannot cover it. */
+.hint {
+  position: relative;
+  z-index: 1;
+  margin-top: 10rpx;
+  color: rgba(234, 241, 255, 0.34);
+  font-size: 26rpx;
+  letter-spacing: 6rpx;
+  transition: opacity 0.3s;
+}
+
+.hint-off {
+  opacity: 0;
+}
