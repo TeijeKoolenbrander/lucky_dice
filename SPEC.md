@@ -319,58 +319,7 @@ the shake animation reads as convincing. None of that can be unit-tested.
 
 ---
 
-## 8. Open questions
-
-### 8.1 Rule G3 — resolved ✅
-
-G3 is: no 1s at all, **and** at most 3 distinct faces. It replaced the original
-"no 1s at all" rule, which matched ~40% of fair hands on its own.
-
-Measured over 200,000 hands: ~23% of fair hands satisfy G3 and ~40% satisfy
-`isGoodHand()` overall (down from ~57%). With `LUCKY_GOOD_CHANCE = 0.85`, lucky
-mode lands a good hand ~91% of the time.
-The statistical test suite reports the real-world hit rate per rule so this can be
-tuned with evidence rather than guesswork.
-
-### 8.2 Face-tap mapping and the face/wild split — resolved ✅
-
-**Face tap confirmed** as `zone index + 1`: top-left is face 1, bottom-right is face 6.
-Quantity reads 1–5 in the same positions, with 0 in the bottom-right corner. So the two
-taps agree everywhere except bottom-right (quantity 0, face 6).
-
-**Split defaults to `'binomial'`** — wilds ~ Binomial(`qty`, 0.5), so the hand is
-usually a mix, and all-face or all-wild is rare. (It replaced `'weighted'`, which
-gave five wilds 18% of the time on a five.) Mixing in wilds is good for three reasons:
-
-1. **It reads identically.** A `1` is wild, so `5 5 1` is still exactly three 5s.
-   You lose nothing on the bid you planned.
-2. **The wilds float.** `5 5 5` gives you literally zero 6s, zero 4s, zero anything
-   else. `5 5 1` gives you one of *every* face. When the bidding drifts off your
-   chosen number — which it will — you still have something to stand on.
-3. **It looks less manufactured.** Three identical dice is the most conspicuous
-   pattern there is. A hand with wilds mixed in looks like a hand.
-
-Tune with `CHEAT_WILD_P` (higher means more 1s), or switch to `'uniform'` to always
-know the exact faces you are showing.
-
-### 8.3 Probability constants
-
-"Significantly more likely but still possible to roll bad" → `LUCKY_GOOD_CHANCE = 0.85`.
-A guess. Easy to tune after a night of play.
-
-### 8.4 Sound files — derived ✅
-
-Extracted from the audio track of `base_images/…dc8faee.mp4`, mono 44.1kHz,
-96kbps mp3:
-
-| File | Source range | Length |
-|---|---|---|
-| `assets/sounds/shake.mp3` | 0.56 – 2.13s | 1.57s |
-
-There is no settle/land sound: the one in the recording was cut off mid-play by
-the end of the capture, and it has been removed along with its playback.
-
-### 8.5 Package size
+### 8.4 Package size
 
 `base_images/` is already ~1.1MB against a **2MB** main-package limit. It must be
 excluded from the upload via `packOptions.ignore` in `project.config.json`, or deleted
