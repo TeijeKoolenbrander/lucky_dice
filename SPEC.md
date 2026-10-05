@@ -230,16 +230,22 @@ resized and compressed into `assets/images/` (~230KB in total):
 
 | Sprite | From | Shown at |
 |---|---|---|
-| `cup.png` | `Cup (1).png` | 440×619rpx |
-| `tray.png` | `lid (1).png` | 600×406rpx |
-| `die1.png` … `die6.png` | `1 (1).png` … `6 (1).png` | 96×109rpx, rolled value on the top face |
+| `cup.png` | `Cup (1).png` | 442×622rpx |
+| `tray.png` | `lid (1).png` | 520×352rpx |
+| `die1.png` … `die6.png` | `1 (1).png` … `6 (1).png` | 88×100rpx, rolled value on the top face |
 
-`Closed (1).png` and `open (1).png` are layout references only.
+`open&close.png` (closed) and `oc2.png` (open) set the layout; the positions
+above are measured from them. `Closed (1).png` and `open (1).png` are older
+references.
 
 - **Background**: black, with a blue radial glow behind the cup.
-- **Cup**: the base rests on the tray floor. When revealed, the cup is translated
-  up 260rpx, which clears the back row of dice.
-- **Dice**: 3D renders, so in-plane rotation is kept within ±5°.
+- **Tray**: fixed; only the cup moves.
+- **Cup**: closed, it sits deep in the tray, with its base 79rpx above the tray's
+  front edge. When revealed, it is translated up 288rpx, so its base hovers just
+  above the tray's back rim.
+- **Dice**: in a five-die cluster (two behind, one to the right, two in front),
+  as in `oc2.png`.
+- **Dice rotation**: the dice are 3D renders, so in-plane rotation is kept within ±5°.
 - **Shake animation** — cup lowers, then rotates ±8° for ~1.2s with easing, settling
   back to 0°.
 - **Bottom bar** — three controls: circular mute toggle (left), large red circular 摇

@@ -14,18 +14,18 @@ const { sparkles, toDice } = require('../../utils/ui');
 const app = getApp();
 
 /**
- * Resting places for the five dice, as percentages of the dice field:
- * three across the front, two behind and between them.
+ * Resting places for the five dice, as percentages of the tray: the cluster
+ * from visuals/oc2.png, two behind, one to the right, two in front.
  *
  * Checked against the sprites: with the cup down, every die stays inside its
- * silhouette, and with the cup up its base clears the back row.
+ * silhouette, and with the cup up its base clears the whole cluster.
  */
 const SLOTS = [
-  { x: 0, y: 45.5 },
-  { x: 36.3, y: 45.5 },
-  { x: 72.6, y: 45.5 },
-  { x: 18.1, y: 0 },
-  { x: 54.4, y: 0 },
+  { x: 23.4, y: 19.0 },
+  { x: 43.7, y: 12.3 },
+  { x: 61.0, y: 24.5 },
+  { x: 27.7, y: 43.0 },
+  { x: 47.8, y: 42.2 },
 ];
 
 /** Scatter the dice a little so a re-roll does not look like a redraw. */
@@ -39,9 +39,9 @@ function positioned(hand, rng) {
     const rot = (rng() - 0.5) * 10;
     const top = slot.y + jy;
     // Depth order: the lower a die sits on screen the nearer it is, so it
-    // paints over the ones behind it. Jitter can take the back row's `top`
-    // to about -1.2, and a negative z-index sinks the die behind the tray, so
-    // it is offset to stay positive. Tops out near 102, well under the cup's
+    // paints over the ones behind it. The offset keeps the z-index positive
+    // even if a slot sits at the very top of the tray, since a negative one
+    // sinks the die behind the tray. Tops out near 46, well under the cup's
     // own z-index, which must stay above every die.
     die.pos =
       'left:' + (slot.x + jx).toFixed(1) + '%;' +
