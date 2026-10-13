@@ -56,3 +56,15 @@
   font-size: 28rpx;
   letter-spacing: 4rpx;
 }
+
+.credits {
+  position: absolute;
+  bottom: calc(40rpx + env(safe-area-inset-bottom));
+  left: 0;
+  right: 0;
+  color: rgba(234, 241, 255, 0.28);
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+  text-align: center;
+  pointer-events: none;
+}

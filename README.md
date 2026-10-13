@@ -22,13 +22,29 @@ The launch screen shows a title, a **PLAY** button and a help link. Each one ope
 No dependencies and no build step.
 
 ```sh
+cd mini-program
 npm test            # run the node:test suite against core/
 npm run stats       # print each mode's distribution over 200k hands
 ```
 
-To run the app, open WeChat DevTools, choose 导入项目, and select the repo root.
+To run the app, open WeChat DevTools, choose 导入项目, and select the `mini-program/` folder.
 
-- `core/` holds the pure roll logic. It makes no `wx.*` calls.
-- `core/config.js` holds every tunable probability and timing.
-- `pages/` holds the UI: `home` is the launch screen and `cup` is the play screen.
+- `mini-program/core/` holds the pure roll logic. It makes no `wx.*` calls.
+- `mini-program/core/config.js` holds every tunable probability and timing.
+- `mini-program/pages/` holds the UI: `home` is the launch screen and `cup` is the play screen.
 
+
+## Mini Game
+
+`mini-game/` is the same app as a WeChat Mini Game (小游戏): one canvas, no WXML or pages. It plays identically, with the same modes, gestures, cheat grid and haptics.
+
+```sh
+cd mini-game
+npm test            # core/ suite, plus layout, animation and a smoke test that drives the game with a fake wx
+```
+
+To run it, open WeChat DevTools, choose 导入项目, select the `mini-game/` folder, and use your own Mini Game appid. A Mini Game needs its own registration, separate from the Mini Program's appid.
+
+- `mini-game/core/` is a copy of `mini-program/core/`. A test fails if the two drift, so change one and copy it to the other.
+- `mini-game/js/cup.js` and `js/home.js` are the two screens. `js/main.js` runs the canvas, render loop and touch routing.
+- `mini-game/js/layout.js` holds every size, converted from the mini-program's rpx values.

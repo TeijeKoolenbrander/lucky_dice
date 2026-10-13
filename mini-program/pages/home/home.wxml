@@ -15,4 +15,6 @@
 
   <!-- Reads as a help link. Goes to Cheat. -->
   <view class="howto" catchtap="goCheat">玩法说明</view>
+
+  <view class="credits">TK · EW</view>
 </view>

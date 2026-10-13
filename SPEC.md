@@ -1,4 +1,4 @@
-# 骰盅 — WeChat Mini Program Spec
+# 骰盅 — WeChat Mini Program & Mini Game Spec
 
 A virtual dice cup (骰盅) for playing 吹牛 / 大话骰 in person. Replaces the physical
 cup: you shake, the dice stay hidden, you lift the cup to peek at your own five.
@@ -6,6 +6,17 @@ All bidding, 开, and drinking happens out loud between real people — the app 
 game logic, no scoring, no opponents.
 
 The rolls are rigged. That is the point of the app.
+
+There are two builds of the same app, and this spec covers both:
+
+| Build | Folder | What it is |
+|---|---|---|
+| **Mini Program** (小程序) | `mini-program/` | WXML pages, WXSS styles, `setData` |
+| **Mini Game** (小游戏) | `mini-game/` | One canvas, drawn by hand, with its own touch routing |
+
+They behave the same way: same modes, rolls, gestures, cheat grid, haptics, sprites
+and layout. Everything below applies to both unless a section says otherwise.
+§3.1 lists where the Mini Game differs.
 
 ---
 
@@ -15,6 +26,7 @@ The rolls are rigged. That is the point of the app.
 |---|---|
 | **Users** | Me, and nobody else. Private build. |
 | **Distribution** | Never submitted for review. Runs via DevTools preview or a 体验版 QR. |
+| **AppIDs** | Separate registrations: Mini Program `wx6d5a9d8ec36cf6a1`, Mini Game `wx554df5d818dc209a`. |
 | **Network** | None. Zero requests, zero backend, nothing stored off-device. |
 | **Dice count** | Always 5. (Reference app uses 6; we use 5.) |
 | **Look** | Rebuild the visual language of 喝酒摇骰子 — see `base_images/`. |
@@ -41,6 +53,8 @@ Each mode screen has a **back button** returning to the launch screen.
 ## 2. Roll generation
 
 All three generators live in `core/` as pure functions of an injected RNG.
+Each build has its own copy of `core/`, and the two copies are kept byte-identical
+(see §9).
 A hand is `number[5]`, each value `1..6`.
 
 Terminology: **1s are wild (飞)**, so a hand's strength for face `X` is
@@ -201,12 +215,15 @@ help link.
 | `玩法说明` | a how-to-play link | **Cheat** |
 
 Each secret target carries ~30rpx of padding beyond its text so it is forgiving to
-tap, and neither declares a `hover-class`. `玩法说明` is a stand-in — any innocuous
-label works, and it is one string in `home.wxml`.
+tap, and neither shows a pressed state (no `hover-class` in the Mini Program, no
+press visual in the Mini Game). `玩法说明` is a stand-in — any innocuous label works,
+and it is one string in `pages/home/home.wxml` or `js/home.js`.
 
 ### Cup screen
 
-Single page, mode passed as a query param: `pages/cup/cup?mode=lucky`.
+One screen for all three modes. The Mini Program passes the mode as a query param
+(`pages/cup/cup?mode=lucky`); the Mini Game passes it when it switches to the cup
+scene (`app.go('cup', 'lucky')`).
 
 | Action | Result |
 |---|---|
@@ -220,6 +237,24 @@ Single page, mode passed as a query param: `pages/cup/cup?mode=lucky`.
 **Gesture disambiguation:** a touch that moves more than `SWIPE_THRESHOLD = 40px`
 vertically is a swipe; anything less is a tap on the zone grid. This only matters in
 cheat mode, where both gestures are live at once.
+
+### 3.1 Mini Game differences
+
+The Mini Game reproduces the Mini Program screen for screen. These are the only
+behavioural differences, all forced by having no WXML or navigation bar:
+
+- **No navigation bar.** Content starts where the Mini Program's bar would have
+  ended (below the capsule menu), so the layout and the lifted cup keep clear of
+  the capsule. The cheat grid covers that same area, so the zones sit where they
+  did in the Mini Program.
+- **Control taps are only control taps.** In the Mini Program a tap on 🔊/🍶 or ⚙
+  also reached the stage, so with the override armed it counted as a zone tap too.
+  The Mini Game consumes it.
+- **Screens are scenes.** ⚙ switches back to the launch scene rather than calling
+  `wx.navigateBack()`. There is no page stack and no system back gesture.
+- **Icons are centred by their ink.** Canvas centres a glyph's em box, which puts
+  symbols like ⚙ off-centre by a font-dependent amount. Each control glyph is
+  measured once off-screen and shifted so its visible shape is centred.
 
 ---
 
@@ -251,55 +286,79 @@ references.
 - **Bottom bar** — three controls: circular mute toggle (left), large red circular 摇
   button (centre), circular gear (right).
 
+All sizes are given in rpx. The Mini Game converts them the same way WeChat does
+(the screen is 750rpx wide), in `mini-game/js/layout.js`. Its CSS transitions
+(cup lift `0.45s cubic-bezier(0.22, 0.9, 0.3, 1)`, hint fade `0.3s`) and the
+`wobble` keyframes are reimplemented in `mini-game/js/anim.js`.
+
 ---
 
 ## 5. Project structure
 
 ```
 cheatshaizi/
-├── app.js  app.json  app.wxss
-├── project.config.json  sitemap.json
-├── SPEC.md
-├── base_images/              reference screenshots (not shipped)
-├── core/                     PURE JS — no wx.* calls, no setData
-│   ├── rng.js                fair + seeded RNG
-│   ├── hands.js              counts, isGoodHand, predicates
-│   ├── lucky.js              rollLucky(rng)
-│   ├── insane.js             rollInsane(rng)
-│   ├── cheat.js              applyCheat, zoneAt, zone mapping
-│   └── config.js             every tunable constant, in one place
-├── utils/
-│   └── ui.js                 sparkles, pip layouts, hand -> view model
-├── pages/
-│   ├── home/                 PLAY + hidden zones
-│   └── cup/                  the whole play screen
-├── assets/
-│   └── sounds/               shake.mp3
-├── tools/
-│   └── stats.js              prints each mode's real distribution
-└── tests/                    node:test, runs in plain node against core/
+├── SPEC.md  README.md
+├── mini-program/
+│   ├── app.js  app.json  app.wxss
+│   ├── project.config.json  sitemap.json
+│   ├── base_images/          reference screenshots (not shipped)
+│   ├── visuals/              source renders for the sprites (not shipped)
+│   ├── core/                 PURE JS — no wx.* calls, no setData
+│   │   ├── rng.js            fair + seeded RNG
+│   │   ├── hands.js          counts, isGoodHand, predicates
+│   │   ├── lucky.js          rollLucky(rng)
+│   │   ├── insane.js         rollInsane(rng)
+│   │   ├── cheat.js          applyCheat, zoneAt, zone mapping
+│   │   └── config.js         every tunable constant, in one place
+│   ├── utils/
+│   │   └── ui.js             sparkles, hand -> view model
+│   ├── pages/
+│   │   ├── home/             PLAY + hidden zones
+│   │   └── cup/              the whole play screen
+│   ├── assets/               sprites + shake.mp3
+│   ├── tools/
+│   │   └── stats.js          prints each mode's real distribution
+│   └── tests/                node:test, runs in plain node against core/
+└── mini-game/
+    ├── game.js  game.json    entry point and config
+    ├── project.config.json   compileType "game"
+    ├── core/                 identical copy of mini-program/core/
+    ├── js/
+    │   ├── main.js           canvas, render loop, touch routing, scenes
+    │   ├── home.js           launch scene (pages/home)
+    │   ├── cup.js            cup scene (pages/cup)
+    │   ├── layout.js         every size, converted from rpx — pure
+    │   ├── anim.js           transitions + wobble keyframes — pure
+    │   ├── dice.js           dice slots and scatter (utils/ui) — pure
+    │   └── draw.js           backdrop, spaced text, buttons
+    ├── assets/               same sprites + shake.mp3
+    └── tests/                core/ suite + layout, animation, smoke tests
 ```
 
-Shipped package is **52KB** — `base_images/`, `tests/`, `tools/` and `SPEC.md` are
-excluded via `packOptions.ignore`.
+Shipped packages: the Mini Program is **52KB**, with `base_images/`, `visuals/`,
+`tests/` and `tools/` excluded via `packOptions.ignore`. The Mini Game is
+**~290KB**, almost all of it sprites, with `tests/` excluded.
 
-`core/` never imports from `pages/` and never touches a WeChat API. That is what
-makes the rigging testable without opening the simulator.
+`core/` never imports from `pages/` or `js/` and never touches a WeChat API. That
+is what makes the rigging testable without opening the simulator, and what lets
+both builds share it unchanged.
 
 ---
 
 ## 6. Commands
 
+Run from inside `mini-program/` or `mini-game/`:
+
 | | |
 |---|---|
-| `npm test` | Run the suite against `core/` and `utils/` |
-| `npm run test:watch` | Watch mode while tuning probabilities |
-| `npm run stats` | Print what each mode actually produces, over 200k hands |
-| DevTools → 导入项目 | Point at the repo root; AppID auto-fills as `touristappid` |
+| `npm test` | Run that build's suite |
+| `npm run test:watch` | *Mini Program* — watch mode while tuning probabilities |
+| `npm run stats` | *Mini Program* — print what each mode actually produces, over 200k hands |
+| DevTools → 导入项目 | Point at `mini-program/` or `mini-game/`; the AppID comes from its `project.config.json` |
 
 No build step, no bundler, **no dependencies** — the suite uses Node's built-in
 `node:test` rather than jest, so there is nothing to install. `core/` is plain
-CommonJS, consumed directly by both the tests and the mini program.
+CommonJS, consumed directly by the tests and by both builds.
 
 ---
 
@@ -323,16 +382,28 @@ Everything that matters is a pure function, so it is tested outside WeChat.
 - Insane four-effective: the odd die is never `X` and never `1`.
 - Fair baseline: each face ≈ 1/6.
 
+**Mini Game only:**
+
+- `core/` is byte-identical to `mini-program/core/` — the test fails on any drift.
+- Layout matches the rpx values in the Mini Program's WXSS; controls do not overlap.
+- Easing curves, tweens and the wobble keyframes hit their expected values.
+- A smoke test boots the whole game against a fake `wx` and canvas and plays it by
+  touch: every mode, swipe to reveal, mute, back, and the full cheat flow (arm,
+  two zone taps, one-shot disarm, no-wilds toggle).
+
 **Manual, on-device:** vibration timing, long-press feel, swipe threshold, and whether
-the shake animation reads as convincing. None of that can be unit-tested.
+the shake animation reads as convincing. None of that can be unit-tested. Check both
+builds — the Mini Game's canvas rendering (fonts, emoji, icon centring) can differ
+between iOS and Android.
 
 ---
 
 ### 8.4 Package size
 
-`base_images/` is already ~1.1MB against a **2MB** main-package limit. It must be
-excluded from the upload via `packOptions.ignore` in `project.config.json`, or deleted
-before building a 体验版.
+`base_images/` is already ~1.1MB against the Mini Program's **2MB** main-package
+limit. It must be excluded from the upload via `packOptions.ignore` in
+`mini-program/project.config.json`, or deleted before building a 体验版. The Mini
+Game carries no reference images, so it has no such risk.
 
 ---
 
@@ -341,6 +412,9 @@ before building a 体验版.
 **Always**
 
 - Keep `core/` free of `wx.*` and free of `setData`.
+- Keep the two copies of `core/` identical. Change one, copy it to the other.
+- Keep both builds behaving the same. A change to one is made to the other, unless
+  it only exists because of the platform (§3.1).
 - Keep every tunable number in `core/config.js`, never inline.
 - Keep the hidden zones visually undetectable.
 - Keep the app fully offline.
@@ -348,7 +422,7 @@ before building a 体验版.
 **Ask first**
 
 - Changing any probability constant.
-- Adding a page, a permission, or anything that appears in the launch UI.
+- Adding a page or scene, a permission, or anything that appears in the launch UI.
 - Anything touching package size or the DevTools config.
 
 **Never**
